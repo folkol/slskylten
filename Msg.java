@@ -1,4 +1,6 @@
-import gnu.io.*;
+import jssc.SerialPort;
+import jssc.SerialPortException;
+
 import java.util.*;
 import java.io.*;
 
@@ -13,25 +15,30 @@ public class Msg {
     public static final char[] ok = {0x3c ,0x3c ,0x3c ,0x4f, 0x4b,0x21 ,0x3e ,0x3e ,0x3e};
 
         public static void main(String[] args) throws Exception {
-        SerialPort serialPort = null;
         byte[] buf = new byte[100];
 
-        CommPortIdentifier port = CommPortIdentifier.getPortIdentifier("/dev/cu.usbserial");
-        System.out.println(port.getName());
-        serialPort = (SerialPort) port.open("ListPortClass", 3000);
-        int b = serialPort.getBaudRate();
-        serialPort.setSerialPortParams(b, SerialPort.DATABITS_8, SerialPort.STOPBITS_2, SerialPort.PARITY_NONE);
-        OutputStream out = serialPort.getOutputStream();
-        final InputStream in = serialPort.getInputStream();
+        //        CommPortIdentifier port = CommPortIdentifier.getPortIdentifier("/dev/cu.usbserial");
+        //n        System.out.println(port.getName());
+        //        serialPort = (SerialPort) port.open("ListPortClass", 3000);
+
+        SerialPort serialPort = new SerialPort("/dev/cu.usbserial");
+        serialPort.openPort();
+        serialPort.setParams(9600, 8, 1, 0);
+        
+        //        int b = serialPort.getBaudRate();
+        //        serialPort.setSerialPortParams(b, SerialPort.DATABITS_8, SerialPort.STOPBITS_2, SerialPort.PARITY_NONE);
+        //        OutputStream out = serialPort.getOutputStream();
+        //        final InputStream in = serialPort.getInputStream();
 
         System.out.println("Ready? \r\n");
-        out.write(ready);
-        out.flush();
+        //        out.write(ready);
+        serialPort.writeByte((byte)0x55);
+        //        out.flush();
         System.out.println("Waiting for Reply \r\n");
         String s = "";
         while(true) {
-            int i = in.read();
-            s += (char) i;
+            byte[] i = serialPort.readBytes(1);
+            s += new String(i);
             System.out.println(s);
             if(s.contains("BEREIT!>>>"))
                break;
@@ -59,18 +66,16 @@ public class Msg {
         //20 20 20 34 33 30 32".getBytes("US-ASCII");
 
         System.out.println(new String(sendarray));
-        out.write(sendarray);
-        out.flush();
+        //        out.write(sendarray);
+        serialPort.writeBytes(sendarray);
+        //        out.flush();
 
                 while(true) {
-            int i = in.read();
-            s += (char) i;
+                                byte[] i = serialPort.readBytes(1);
+            s += new String(i);
             System.out.println(s);
             if(s.contains("OK!>>>"))
                break;
         }
-
-                out.close();
-
     }
 }
