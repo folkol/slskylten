@@ -1,5 +1,6 @@
 import gnu.io.*;
 import java.util.*;
+import java.io.*;
 
 public class Msg {
     
@@ -10,49 +11,58 @@ public class Msg {
     public static final char space = 0x20;
     public static final char[] bereit = {0x3c ,0x3c ,0x3c ,0x42 ,0x45 ,0x52 ,0x45 ,0x49, 0x54 ,0x21 ,0x3e ,0x3e ,0x3e};
     public static final char[] ok = {0x3c ,0x3c ,0x3c ,0x4f, 0x4b,0x21 ,0x3e ,0x3e ,0x3e};
-    
-    public static void main(String[] args) throws Exception {
-        java.io.OutputStream mOutputToPort = null;
-        java.io.InputStream mInputFromPort = null;
+
+        public static void main(String[] args) throws Exception {
         SerialPort serialPort = null;
+        byte[] buf = new byte[100];
 
         CommPortIdentifier port = CommPortIdentifier.getPortIdentifier("/dev/cu.usbserial");
         System.out.println(port.getName());
         serialPort = (SerialPort) port.open("ListPortClass", 3000);
         int b = serialPort.getBaudRate();
-        System.out.println(Integer.toString(b));
         serialPort.setSerialPortParams(b, SerialPort.DATABITS_8, SerialPort.STOPBITS_2, SerialPort.PARITY_NONE);
-        mOutputToPort = serialPort.getOutputStream();
-        mInputFromPort = serialPort.getInputStream();
+        OutputStream out = serialPort.getOutputStream();
+        final InputStream in = serialPort.getInputStream();
+
         System.out.println("Ready? \r\n");
-        mOutputToPort.write(ready);
-        mOutputToPort.flush();
+        out.write(ready);
+        out.flush();
         System.out.println("Waiting for Reply \r\n");
-        Thread.sleep(1000);
-        byte mBytesIn [] = new byte[200];
-        mInputFromPort.read(mBytesIn);
-        String value = new String(mBytesIn).trim();
-        System.out.println("Response from Serial Device: "+value);
-        System.out.print("Response from Serial Device in hex: ");
-        System.out.println("");
-        for (char ch : value.toCharArray()) {
-            System.out.print(Integer.toHexString(ch) + " ");
+        String s = "";
+        while(true) {
+            int i = in.read();
+            s += (char) i;
+            System.out.println(s);
+            if(s.contains("BEREIT!>>>"))
+               break;
         }
 
-            byte[] sendarray = "\0030\0032\0030\0030\0033\0030\0046\0030\0035\0030\0031\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0073\0075\006e\0065\0002\00f3\0020\0020\0020\0020\0032\0032\0030\0039".getBytes();
+        //        byte[] sendarray = "\u0030\u0032\u0030\u0030\u0033\u0030\u0046\u0030\u0035\u0030\u0031\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0073\u0075\u006e\u0065\u0002\u00f3\u0020\u0020\u0020\u0020\u0032\u0032\u0030\u0039".getBytes("ASCII");
 
-            System.out.println("Writing message");
-            mOutputToPort.write(sendarray);
-            mOutputToPort.flush();
-            System.out.println("Waiting for Reply \r\n");
-            Thread.sleep(1000);
-            mInputFromPort.read(mBytesIn);
-            mInputFromPort.read(mBytesIn);
-            value = new String(mBytesIn).trim();
-            System.out.println("Response from Serial Device: "+value);
-            System.out.print("Response from Serial Device in hex: ");
-            for (char ch : value.toCharArray()) {
-                System.out.print(Integer.toHexString(ch) + " ");
-            }
+        byte[] sendarray = new byte[] {
+            (byte)0x30, (byte)0x32, (byte)0x30, (byte)0x30, (byte)0x33, (byte)0x30, (byte)0x42, (byte)0x30, (byte)0x33, (byte)0x41, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x02, (byte)0x46, (byte)0x30, (byte)0x35, (byte)0x30, (byte)0x31, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x54, (byte)0x65, (byte)0x73, (byte)0x74, (byte)0x02, (byte)0xF3, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x34, (byte)0x33, (byte)0x30, (byte)0x32
+                };
+
+        //        byte[] sendarray = "30 32 30 30 33 30 42 30 33 41 20 20 20 20 20 20      020030B03A
+        //20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+        //20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+        //20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+        //20 20 20 20 20 02 46 30 35 30 31 20 20 20 20 20           .F0501
+        //20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+        //20 20 20 20 20 20 20 20 20 54 65 73 74 02 F3 20               Test..
+        //20 20 20 34 33 30 32".getBytes("US-ASCII");
+
+        System.out.println(new String(sendarray));
+        out.write(sendarray);
+        out.flush();
+
+                while(true) {
+            int i = in.read();
+            s += (char) i;
+            System.out.println(s);
+            if(s.contains("BEREIT>>>"))
+               break;
+        }
+
     }
 }
