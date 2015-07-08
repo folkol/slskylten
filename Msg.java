@@ -20,8 +20,6 @@ public class Msg {
     static byte[] createMessage(String msg) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         baos.write(startpart, 0, startpart.length);
-        baos.write("B03A                                                           ".getBytes());
-        baos.write(messageDelimiter);
         baos.write("F".getBytes("ASCII"));
         baos.write("0".getBytes("ASCII"));
         baos.write("5".getBytes("ASCII"));
@@ -31,18 +29,20 @@ public class Msg {
         baos.write("Test".getBytes("ASCII"));
         baos.write(messageDelimiter);
         baos.write(endpart);
-        System.out.printf("messageDelim: '%s'%n", messageDelimiter);
-        System.out.printf("messageDelim: '%s'%n", "\u00f3");
-        System.out.printf("messageDelim: '%s'%n", (char)0xf3);
 
         int sum = 0;
         for(byte b : baos.toByteArray()) {
+            if(b<0)
+                b += 127;
             sum += b;
         }
-        sum = 4302;
+        System.out.print(": " + sum);
+        //        sum = 4302;
+        System.out.print(": " + sum);
         String checksum = String.format("%8s", Integer.toString(sum));
         baos.write(checksum.getBytes());
-        System.out.print(Arrays.toString(baos.toByteArray()));
+
+        System.err.print(baos.toByteArray());
 
         return baos.toByteArray();
     }
