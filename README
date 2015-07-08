@@ -1,0 +1,332 @@
+1) Download RXTXcomm.jar and native lib from http://jlog.org/rxtx-mac.html
+2) Create and grant permissions on /var/lock
+
+
+
+https://learn.sparkfun.com/tutorials/terminal-basics
+
+https://learn.sparkfun.com/tutorials/serial-communication
+https://learn.sparkfun.com/tutorials/analog-vs-digital
+https://learn.sparkfun.com/tutorials/binary
+https://learn.sparkfun.com/tutorials/hexadecimal
+https://en.wikipedia.org/wiki/ASCII
+https://learn.sparkfun.com/tutorials/how-to-install-ftdi-drivers
+https://www.sparkfun.com/tutorials/215?_ga=1.1282865.1417881560.1436294067
+https://learn.sparkfun.com/tutorials/logic-levels
+https://learn.sparkfun.com/tutorials/connector-basics
+https://learn.sparkfun.com/tutorials/connector-basics/usb-connectors
+
+http://www.byteparadigm.com/applications/introduction-to-i2c-and-spi-protocols/
+https://learn.sparkfun.com/tutorials/serial-peripheral-interface-spi
+https://learn.sparkfun.com/tutorials/i2c
+
+http://www.tldp.org/HOWTO/Text-Terminal-HOWTO-11.html
+
+http://stackoverflow.com/questions/957337/what-is-the-difference-between-dtr-dsr-and-rts-cts-flow-control
+
+http://stackoverflow.com/questions/8877269/writing-to-serial-port-from-linux-command-line
+
+https://en.wikipedia.org/wiki/Control_character
+
+CTRL Chars vs ASCII. Relations.
+
+
+
+
+—————
+
+ATS - Protocol
+Reverse engineered by Robert Hjelmberg - December 2011
+For educational purposes only!
+
+ATS uses  I/O request packet (IRP) to communicate over RS-232 with the display.
+All communication in this document are in hexadecimal form and are shown in [].
+Extra info and ascii representations are sometimes provided in ().
+Com port settings:
+BaudRate: 9600
+StopBits: 2
+Parity: 0
+WordLength: 8
+DTR/RTS: Enabled
+
+Communication protocol:
+Client: Sends [55] (U) to check if display is ready to recieve.
+Display: Answers [3c 3c 3c 42 45 52 45 49 54 21 3e 3e 3e] (<<<BEREIT!>>>) if it's ready
+Client: Sends data to XXXXXXX ( See data format )
+Display: Answers [3c 3c 3c 4f 4b 21 3e 3e 3e] (<<<OK!>>>) if it recieve data succesfully.
+
+Data format:
+The dataformat consists of 4 parts. Those are
+1. The start part [30 32 30 30 33 30] (020030)
+2. One or more Entries separated with the delimiter [02] (STX) ( See entry format )
+3. An end part [f3]
+4. A 8 byte checksum ( See checksum format )
+
+Entry format:
+-This can be [42]BLOCK, [53]SCROLL or [46]FLOW
+-B [42] is followed by 2 bytes which is the change page delay from 1 to 99 seconds in ascii.
+Then comes 60 bytes of text. In ascii.
+-S [53] is followed by 2 bytes which is the change of line delay from 1 to 99 seconds in ascii.
+Then comes 30 bytes of text. In ascii.
+-F [46] is  followed by 2 bytes which is the flow pulse rangeing from 0.1 to 1.0 in ascii without the dot .Eg a pulse of 0.5 would be [30 35]
+After the flow pulse comes 2 bytes defining which lane the text should  flow on. This can be either [30 31] (01) or [30 32] (02).
+Then comes 30 bytes of spaces [20]
+Then comes X bytes of text. The text is in ascii format.
+All type of entries are delimited by [02].
+The last entry should also have a trailing [02] after it.
+
+Checksum format:
+All the bytes from the start part to end part (both included) are summed.
+
+Examples:
+
+[29/11/2011 17:32:49] - Written data
+
+55                                              U
+
+[29/11/2011 17:32:49] - Read data
+
+3c 3c 3c 42 45 52 45 49 54 21 3e 3e 3e          <<<BEREIT!>>>
+
+[29/11/2011 17:32:50] - Written data
+
+30 32 30 30 33 30 42 30 31 48 45 4a 31 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 02 f3 20 20 20 20
+
+30 32 30 30 33 30 42 30 31 48 45 4a 31 20 20 20 020030B01HEJ1
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 02 f3 20 20 20 20 32 37 35 37         .ó    2757
+
+[29/11/2011 17:32:54] - Read data
+
+3c 3c 3c 4f 4b 21 3e 3e 3e                      <<<OK!>>>
+
+[29/11/2011 17:35:39] - Written data
+
+55                                              U
+
+[29/11/2011 17:35:39] - Read data
+
+3c 3c 3c 42 45 52 45 49 54 21 3e 3e 3e          <<<BEREIT!>>>
+
+[29/11/2011 17:35:40] - Written data
+
+30 32 30 30 33 30 42 30 31 73 75 6e 65 20 20 20 020030B01sune
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 02 f3 20 20 20 20 32 39 33 36         .ó    2936
+
+[29/11/2011 17:35:44] - Read data
+
+3c 3c 3c 4f 4b 21 3e 3e 3e                      <<<OK!>>>
+
+[29/11/2011 17:36:47] - Written data
+
+55                                              U
+
+[29/11/2011 17:36:47] - Read data
+
+3c 3c 3c 42 45 52 45 49 54 21 3e 3e 3e          <<<BEREIT!>>>
+
+[29/11/2011 17:36:47] - Written data
+
+30 32 30 30 33 30 42 30 31 73 75 6e 65 20 20 20 020030B01sune
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 02 f3 20 20 20 20 32 39 33 36         .ó    2936
+
+[29/11/2011 17:36:51] - Read data
+
+3c 3c 3c 4f 4b 21 3e 3e 3e                      <<<OK!>>>
+
+[29/11/2011 17:37:43] - Written data
+
+55                                              U
+
+[29/11/2011 17:37:43] - Read data
+
+3c 3c 3c 42 45 52 45 49 54 21 3e 3e 3e          <<<BEREIT!>>>
+
+[29/11/2011 17:37:43] - Written data
+
+30 32 30 30 33 30 53 30 33 73 75 6e 65 20 20 20 020030S03sune
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 02 f3 20 20 20 20 31 39 39        .ó    199
+35                                              5
+
+[29/11/2011 17:37:47] - Read data
+
+3c 3c 3c 4f 4b 21 3e 3e 3e                      <<<OK!>>>
+
+[29/11/2011 17:42:43] - Written data
+
+55                                              U
+
+[29/11/2011 17:42:43] - Read data
+
+3c 3c 3c 42 45 52 45 49 54 21 3e 3e 3e          <<<BEREIT!>>>
+
+[29/11/2011 17:42:43] - Written data
+
+30 32 30 30 33 30 46 30 35 30 31 20 20 20 20 20 020030F0501
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 73 75 6e 65 02 f3 20          sune.ó
+20 20 20 32 32 30 39                               2209
+
+[29/11/2011 17:42:47] - Read data
+
+3c 3c 3c 4f 4b 21 3e 3e 3e                      <<<OK!>>>
+
+[29/11/2011 17:47:08] - Written data
+
+55                                              U
+
+[29/11/2011 17:47:08] - Read data
+
+3c 3c 3c 42 45 52 45 49 54 21 3e 3e 3e          <<<BEREIT!>>>
+
+[29/11/2011 17:47:08] - Written data
+
+30 32 30 30 33 30 46 30 35 30 31 20 20 20 20 20 020030F0501
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 53 75 6e 65 02 46 30          Sune.F0
+35 30 31 20 20 20 20 20 20 20 20 20 20 20 20 20 501
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 53 75 6e 65 20 69 67 65 6e 02 f3 20 20 20 20  Sune igen.ó
+34 32 36 39                                     4269
+
+[29/11/2011 17:47:12] - Read data
+
+3c 3c 3c 4f 4b 21 3e 3e 3e                      <<<OK!>>>
+
+
+Here are some additional dumps of only some data:
+
+30 32 30 30 33 30 46 30 35 30 31 20 20 20 20 20      020030F0501
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 53 75 6E 65 02 46 30               Sune.F0
+35 30 31 20 20 20 20 20 20 20 20 20 20 20 20 20      501
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 53 75 6E 65 20 69 67 65 6E 6E 02 F3 20 20 20       Sune igenn..
+20 34 33 37 39                                        4379
+
+
+
+30 32 30 30 33 30 46 30 35 30 31 20 20 20 20 20      020030F0501
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 53 75 6E 65 02 46 30               Sune.F0
+35 30 31 20 20 20 20 20 20 20 20 20 20 20 20 20      501
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 53 75 6E 65 20 69 67 65 6E 6E 6E 6E 6E 6E 6E       Sune igennnnnnn
+6E 6E 6E 6E 6E 6E 6E 02 F3 20 20 20 20 35 36 39      nnnnnnn..    569
+39                                                   9
+
+
+30 32 30 30 33 30 42 30 33 41 20 20 20 20 20 20      020030B03A
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 02 F3 20 20 20 20 32 36 35 36              ..    2656
+
+
+
+30 32 30 30 33 30 42 30 33 41 20 20 20 20 20 20      020030B03A
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 02 42 30 33 42 42 20 20 20 20 20           .B03BB
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 02 42 30 33 43 43 43 20 20 20 20           .B03CCC
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 02 F3 20 20 20 20 37 30 30 33              ..    7003
+
+
+
+30 32 30 30 33 30 42 30 33 41 20 20 20 20 20 20      020030B03A
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 02 46 30 35 30 31 20 20 20 20 20           .F0501
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 54 65 73 74 02 F3 20               Test..
+20 20 20 34 33 30 32                                    4302
+
+
+
+30 32 30 30 33 30 42 30 33 41 20 20 20 20 20 20      020030B03A
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 02 53 30 30 54 65 73 74 20 20 20           .S00Test
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 02 F3 20 20 20 20 34 30 38             ..    408
+35                                                   5
+
+
+Here is a small java program that calculates the checksum for some test messages:
+It should work, it's not tested to 100%.
+
+public class main {
+public static void main(String[] args) throws Exception {
+char[] startpart = { 0x30, 0x32, 0x30, 0x30, 0x33, 0x30 };
+//See entry format to build custom messages
+String[] messages = { "B03A block" , "S00A scroll" ,"F0501A flow" };
+char messageDelimiter = 0x02;
+char endpart = 0xf3;
+char space = 0x20;
+int result = 0;
+int numberOfSpaces = 0;
+for (int i = 0; i < startpart.length; i++) {
+result+=startpart[i];
+}
+for (String msg : messages) {
+String type = msg.substring(0,1);
+if("B".equals(type))
+numberOfSpaces = 63 - msg.length();
+if("S".equals(type))
+numberOfSpaces = 33 - msg.length();
+if("F".equals(type))
+numberOfSpaces = 30;
+for (char letter : msg.toCharArray()) {
+result += letter;
+}
+for (int i = 0; i < numberOfSpaces; i++) {
+result += space;
+}
+result+=messageDelimiter;
+}
+result+=endpart;
+String calculatedPart = String.valueOf(result);
+int numberOfChecksumSpaces = 8 - calculatedPart.length();
+String spacePart = "";
+for (int i = 0; i < numberOfChecksumSpaces; i++) {
+spacePart += "20 ";
+}
+System.out.print("Checksum in hex: " + spacePart);
+for (char ch : String.valueOf(result).toCharArray()) {
+System.out.print(Integer.toHexString(ch) + " ");
+}
+}
+}
+
+
+
+
+30 32 30 30 33 30 46 30 35 30 31 20 20 20 20 20 020030F0501
+20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+20 20 20 20 20 20 20 20 20 73 75 6e 65 02 f3 20          sune.ó
+20 20 20 32 32 30 39                               2209
+
+
+
+
+\x30\x32\x30\x30\x33\x30\x46\x30\x35\x30\x31\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x73\x75\x6e\x65\x02\xf3\x20\x20\x20\x20\x32\x32\x30\x39
+
+
