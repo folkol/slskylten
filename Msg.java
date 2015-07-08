@@ -9,13 +9,41 @@ public class Msg {
     public static final char ready = 0x55;
     public static final byte[] startpart = { 0x30, 0x32, 0x30, 0x30, 0x33, 0x30 };
     public static final byte messageDelimiter = 0x02;
-    public static final byte endpart = 0xf3;
-    public static final byte space = 0x20;
+    public static final byte endpart = (byte) 0xf3;
+    public static final byte space = (byte) 0x20;
     public static final byte[] bereit = {0x3c ,0x3c ,0x3c ,0x42 ,0x45 ,0x52 ,0x45 ,0x49, 0x54 ,0x21 ,0x3e ,0x3e ,0x3e};
     public static final byte[] ok = {0x3c ,0x3c ,0x3c ,0x4f, 0x4b,0x21 ,0x3e ,0x3e ,0x3e};
 
-    static byte[] createMessage(String msg) {
+    /**
+020030B03A                                                           F0501                              Test�    4302
+    */
+    static byte[] createMessage(String msg) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        baos.write(startpart, 0, startpart.length);
+        baos.write("B03A                                                           ".getBytes());
+        baos.write(messageDelimiter);
+        baos.write("F".getBytes("ASCII"));
+        baos.write("0".getBytes("ASCII"));
+        baos.write("5".getBytes("ASCII"));
+        baos.write("0".getBytes("ASCII"));
+        baos.write("1".getBytes("ASCII"));
+        baos.write("                              ".getBytes("ASCII"));
+        baos.write("Test".getBytes("ASCII"));
+        baos.write(messageDelimiter);
+        baos.write(endpart);
+        System.out.printf("messageDelim: '%s'%n", messageDelimiter);
+        System.out.printf("messageDelim: '%s'%n", "\u00f3");
+        System.out.printf("messageDelim: '%s'%n", (char)0xf3);
+
+        int sum = 0;
+        for(byte b : baos.toByteArray()) {
+            sum += b;
+        }
+        sum = 4302;
+        String checksum = String.format("%8s", Integer.toString(sum));
+        baos.write(checksum.getBytes());
+        System.out.print(Arrays.toString(baos.toByteArray()));
+
         return baos.toByteArray();
     }
 
@@ -72,7 +100,7 @@ public class Msg {
         //20 20 20 20 20 20 20 20 20 54 65 73 74 02 F3 20               Test..
         //20 20 20 34 33 30 32".getBytes("US-ASCII");
 
-        System.out.println(new String(sendarray));
+        //        System.err.print(new String(sendarray, "ASCII"));
         //        out.write(sendarray);
         serialPort.writeBytes(sendarray);
         //        out.flush();
