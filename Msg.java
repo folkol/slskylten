@@ -38,7 +38,6 @@ public class Msg {
         for (char ch : value.toCharArray()) {
             System.out.print(Integer.toHexString(ch) + " ");
         }
-        if(true) {//check for ready
 
             byte[] sendarray = "\0030\0032\0030\0030\0033\0030\0046\0030\0035\0030\0031\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0020\0073\0075\006e\0065\0002\00f3\0020\0020\0020\0020\0032\0032\0030\0039".getBytes();
 
@@ -55,9 +54,5 @@ public class Msg {
             for (char ch : value.toCharArray()) {
                 System.out.print(Integer.toHexString(ch) + " ");
             }
-            if(true) {//check for ok
-                return;
-            }
-        }
     }
 }
