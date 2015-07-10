@@ -32,7 +32,9 @@ public class Msg {
 
         int sum = 0;
         for(byte b : baos.toByteArray()) {
-            sum += (int) b & 0xFF;
+            if(b<0)
+                b += 127;
+            sum += b;
         }
         System.out.print(": " + sum);
         //        sum = 4302;
@@ -53,8 +55,8 @@ public class Msg {
         //        serialPort = (SerialPort) port.open("ListPortClass", 3000);
 
         SerialPort serialPort = new SerialPort("/dev/cu.usbserial");
-	//        serialPort.openPort();
-	//        serialPort.setParams(9600, 8, 1, 0);
+        serialPort.openPort();
+        serialPort.setParams(9600, 8, 1, 0);
         
         //        int b = serialPort.getBaudRate();
         //        serialPort.setSerialPortParams(b, SerialPort.DATABITS_8, SerialPort.STOPBITS_2, SerialPort.PARITY_NONE);
@@ -63,18 +65,17 @@ public class Msg {
 
         System.out.println("Ready? \r\n");
         //        out.write(ready);
-	//        serialPort.writeByte((byte)0x55);
+        serialPort.writeByte((byte)0x55);
         //        out.flush();
         System.out.println("Waiting for Reply \r\n");
         String s = "";
-	/*
         while(true) {
             byte[] i = serialPort.readBytes(1);
             s += new String(i);
             System.out.println(s);
             if(s.contains("BEREIT!>>>"))
                break;
-	       }*/
+        }
 
         //        byte[] sendarray = "\u0030\u0032\u0030\u0030\u0033\u0030\u0046\u0030\u0035\u0030\u0031\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0073\u0075\u006e\u0065\u0002\u00f3\u0020\u0020\u0020\u0020\u0032\u0032\u0030\u0039".getBytes("ASCII");
 
