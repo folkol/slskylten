@@ -25,8 +25,10 @@ public class Msg {
         baos.write("5".getBytes("ASCII"));
         baos.write("0".getBytes("ASCII"));
         baos.write("1".getBytes("ASCII"));
+
+	// 30 spaces. Are these needed?
         baos.write("                              ".getBytes("ASCII"));
-        baos.write("Test".getBytes("ASCII"));
+        baos.write(msg.getBytes("ASCII"));
         baos.write(messageDelimiter);
         baos.write(endpart);
 
@@ -34,9 +36,7 @@ public class Msg {
         for(byte b : baos.toByteArray()) {
             sum += (int) b & 0xFF;
         }
-        System.out.print(": " + sum);
-        //        sum = 4302;
-        System.out.print(": " + sum);
+
         String checksum = String.format("%8s", Integer.toString(sum));
         baos.write(checksum.getBytes());
 
@@ -48,68 +48,32 @@ public class Msg {
         public static void main(String[] args) throws Exception {
         byte[] buf = new byte[100];
 
-        //        CommPortIdentifier port = CommPortIdentifier.getPortIdentifier("/dev/cu.usbserial");
-        //n        System.out.println(port.getName());
-        //        serialPort = (SerialPort) port.open("ListPortClass", 3000);
-
         SerialPort serialPort = new SerialPort("/dev/cu.usbserial");
-	//        serialPort.openPort();
-	//        serialPort.setParams(9600, 8, 1, 0);
+	serialPort.openPort();
+	serialPort.setParams(9600, 8, 1, 0);
         
-        //        int b = serialPort.getBaudRate();
-        //        serialPort.setSerialPortParams(b, SerialPort.DATABITS_8, SerialPort.STOPBITS_2, SerialPort.PARITY_NONE);
-        //        OutputStream out = serialPort.getOutputStream();
-        //        final InputStream in = serialPort.getInputStream();
-
         System.out.println("Ready? \r\n");
-        //        out.write(ready);
-	//        serialPort.writeByte((byte)0x55);
-        //        out.flush();
+	serialPort.writeByte((byte)0x55);
         System.out.println("Waiting for Reply \r\n");
         String s = "";
-	/*
         while(true) {
             byte[] i = serialPort.readBytes(1);
             s += new String(i);
             System.out.println(s);
             if(s.contains("BEREIT!>>>"))
-               break;
-	       }*/
+		break;
+	}
 
-        //        byte[] sendarray = "\u0030\u0032\u0030\u0030\u0033\u0030\u0046\u0030\u0035\u0030\u0031\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0073\u0075\u006e\u0065\u0002\u00f3\u0020\u0020\u0020\u0020\u0032\u0032\u0030\u0039".getBytes("ASCII");
+        sendarray = createMessage("Test");
 
-        byte[] sendarray = new byte[] {
-            (byte)0x30, (byte)0x32, (byte)0x30, (byte)0x30, (byte)0x33, (byte)0x30, (byte)0x42, (byte)0x30, (byte)0x33, (byte)0x41, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x02, (byte)0x46, (byte)0x30, (byte)0x35, (byte)0x30, (byte)0x31, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x54, (byte)0x65, (byte)0x73, (byte)0x74, (byte)0x02, (byte)0xF3, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x20, (byte)0x34, (byte)0x33, (byte)0x30, (byte)0x32
-                };
-
-        sendarray = createMessage("Hello, world!");
-
-        /*        byte[] bytes = new byte[] {
-            (byte) 30, (byte) 0x32, (byte) 0x30, (byte) 0x30, (byte) 0x33, (byte) 0x30, (byte) 0x46, (byte) 0x30, (byte) 0x35, (byte) 0x30, (byte) 0x31, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x53, (byte) 0x75, (byte) 0x6E, (byte) 0x65, (byte) 0x02, (byte) 0x46, (byte) 0x30, (byte) 0x35, (byte) 0x30, (byte) 0x31, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x53, (byte) 0x75, (byte) 0x6E, (byte) 0x65, (byte) 0x20, (byte) 0x69, (byte) 0x67, (byte) 0x65, (byte) 0x6E, (byte) 0x6E, (byte) 0x6E, (byte) 0x6E, (byte) 0x6E, (byte) 0x6E, (byte) 0x6E, (byte) 0x6E, (byte) 0x6E, (byte) 0x6E, (byte) 0x6E, (byte) 0x6E, (byte) 0x6E, (byte) 0x6E, (byte) 0x02, (byte) 0xF3, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x35, (byte) 0x36, (byte) 0x39, (byte) 0x39
-            };*/
-
-        //        sendarray = bytes;
-
-        //        byte[] sendarray = "30 32 30 30 33 30 42 30 33 41 20 20 20 20 20 20      020030B03A
-        //20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
-        //20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
-        //20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
-        //20 20 20 20 20 02 46 30 35 30 31 20 20 20 20 20           .F0501
-        //20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
-        //20 20 20 20 20 20 20 20 20 54 65 73 74 02 F3 20               Test..
-        //20 20 20 34 33 30 32".getBytes("US-ASCII");
-
-        //        System.err.print(new String(sendarray, "ASCII"));
-        //        out.write(sendarray);
         serialPort.writeBytes(sendarray);
-        //        out.flush();
 
-                while(true) {
-                                byte[] i = serialPort.readBytes(1);
+	while(true) {
+	    byte[] i = serialPort.readBytes(1);
             s += new String(i);
             System.out.println(s);
             if(s.contains("OK!>>>"))
-               break;
+		break;
         }
     }
 }
