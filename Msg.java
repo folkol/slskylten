@@ -29,11 +29,11 @@ public class Msg {
         baos.write(startpart, 0, startpart.length);
         baos.write("F".getBytes("ASCII"));
         baos.write("0".getBytes("ASCII"));
-        baos.write("1".getBytes("ASCII"));
+        baos.write("2".getBytes("ASCII"));
         baos.write("0".getBytes("ASCII"));
         baos.write("1".getBytes("ASCII"));
 
-	// 30 spaces. Are these needed?
+	// 30 spaces. Are these needed? Seems so...
         	for(int i = 0; i < 30; i++)
         	    baos.write(space);
         baos.write(msg.getBytes("ASCII"));
@@ -69,7 +69,7 @@ public class Msg {
 		break;
 	}
 
-        byte[] sendarray = createMessage("POLOPOLY! <3");
+        byte[] sendarray = createMessage("Welcome to Polopoly! <3");
 
         serialPort.writeBytes(sendarray);
 
