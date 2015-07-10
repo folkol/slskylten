@@ -1,1 +1,3 @@
-020030B03A                                                           B03BB                                                          B03CCC                                                         ó
+020030F0501                              Testó    2182Exception in thread "main" jssc.SerialPortException: Port name - /dev/cu.usbserial; Method name - openPort(); Exception type - Port not found.
+	at jssc.SerialPort.openPort(SerialPort.java:165)
+	at Msg.main(Msg.java:58)

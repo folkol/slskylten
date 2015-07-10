@@ -1,3 +1,11 @@
+BUILD:
+	java -cp jssc.jar Msg.java
+
+RUN:
+	java -cp .:jssc.jar Msg
+
+
+
 1) Download RXTXcomm.jar and native lib from http://jlog.org/rxtx-mac.html
 2) Create and grant permissions on /var/lock
 
