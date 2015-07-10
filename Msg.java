@@ -29,7 +29,7 @@ public class Msg {
         baos.write(startpart, 0, startpart.length);
         baos.write("F".getBytes("ASCII"));
         baos.write("0".getBytes("ASCII"));
-        baos.write("5".getBytes("ASCII"));
+        baos.write("1".getBytes("ASCII"));
         baos.write("0".getBytes("ASCII"));
         baos.write("1".getBytes("ASCII"));
 
