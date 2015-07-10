@@ -34,8 +34,8 @@ public class Msg {
         baos.write("1".getBytes("ASCII"));
 
 	// 30 spaces. Are these needed?
-	for(int i = 0; i < 30; i++)
-	    baos.write(space);
+        	for(int i = 0; i < 30; i++)
+        	    baos.write(space);
         baos.write(msg.getBytes("ASCII"));
         baos.write(messageDelimiter);
         baos.write(endpart);
@@ -51,7 +51,6 @@ public class Msg {
     }
 
     public static void main(String[] args) throws Exception {
-	createMessage("Test");
         byte[] buf = new byte[100];
 
         SerialPort serialPort = new SerialPort("/dev/cu.usbserial");
@@ -70,7 +69,7 @@ public class Msg {
 		break;
 	}
 
-        byte[] sendarray = createMessage("Test");
+        byte[] sendarray = createMessage("POLOPOLY! <3");
 
         serialPort.writeBytes(sendarray);
 
